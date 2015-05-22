@@ -12,6 +12,7 @@ class NsqSubscriber
     @channel = args.fetch(:channel)
 
     @logger = args.fetch(:logger) { Logger.new(STDOUT) }
+    @handler_options = args.fetch(:handler_options, {})
 
     @handlers = Hash.new(NoHandlerWarningHandler)
   end
@@ -59,7 +60,8 @@ class NsqSubscriber
     def process_message(message)
       json_message = JSON.parse(message.message)
       message_type = json_message["meta"]["event"]
-      handler = @handlers[message_type].new(json_message, logger: @logger)
+      handler_options = {logger: @logger}.merge(@handler_options)
+      handler = @handlers[message_type].new(json_message, handler_options)
       handler.call
     end
 

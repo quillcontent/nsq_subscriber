@@ -41,7 +41,8 @@ Then instanciate an `NsqSubscriber` specifying the NSQLookupd, topic and channel
 subscriber = NsqSubscriber.new(
   lookupd: "http://127.0.0.1:4161",
   topic: "example_topic",
-  channel: "test_app"
+  channel: "test_app",
+  handler_options: {"oauth_provider": "http://www.example.com"}
 )
 subscriber["test_this"] = ExampleHandler
 subscriber.listen
@@ -60,6 +61,9 @@ is in the following format it will trigger `ExampleHandler#call`.
   }
 }
 ```
+
+The `:handler_options` key will be passed to the handler when a relevant message
+will be received.
 
 ## Development
 
