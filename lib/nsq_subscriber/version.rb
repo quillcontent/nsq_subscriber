@@ -1,3 +1,3 @@
-module NsqSubscriber
-  VERSION = "0.1.0"
+class NsqSubscriber
+  VERSION = "0.0.1"
 end

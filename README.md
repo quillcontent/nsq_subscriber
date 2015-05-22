@@ -1,8 +1,6 @@
 # NsqSubscriber
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/nsq_subscriber`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Easily listen for NSQ messages and pass them to the relevant handler.
 
 ## Installation
 
@@ -22,7 +20,46 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Define one or more handler classes:
+
+```ruby
+class ExampleHandler
+  def initialize(json_message, opts)
+    @message = json_message
+    @logger  = opts.fetch(:logger) { Logger.new(STDOUT) }
+  end
+
+  def call
+    @logger.info "TODO: Handle message: #{@message}"
+  end
+end
+```
+
+Then instanciate an `NsqSubscriber` specifying the NSQLookupd, topic and channel:
+
+```ruby
+subscriber = NsqSubscriber.new(
+  lookupd: "http://127.0.0.1:4161",
+  topic: "example_topic",
+  channel: "test_app"
+)
+subscriber["test_this"] = ExampleHandler
+subscriber.listen
+```
+
+This will listen to events about the "example_topic" topic and when one of them
+is in the following format it will trigger `ExampleHandler#call`.
+
+```ruby
+{
+  "meta": {
+    "event": "test_this"
+  },
+  "data": {
+    "meaning": 42
+  }
+}
+```
 
 ## Development
 
