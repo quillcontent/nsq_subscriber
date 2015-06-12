@@ -12,6 +12,7 @@ class NsqSubscriber
     @channel = args.fetch(:channel)
 
     @logger = args.fetch(:logger) { Logger.new(STDOUT) }
+    @sleep_secs = args.fetch(:sleep_secs, 1)
     @handler_options = args.fetch(:handler_options, {})
 
     @handlers = Hash.new(NoHandlerWarningHandler)
@@ -24,6 +25,7 @@ class NsqSubscriber
   def listen
     while true do
       read_messages
+      sleep(@sleep_secs)
     end
   end
 
