@@ -10,7 +10,7 @@ class NsqSubscriber
     @lookupd = args.fetch(:lookupd)
     @topic   = args.fetch(:topic)
     @channel = args.fetch(:channel)
-
+    @max_in_flight = args.fetch(:max_in_flight, 25)
     @logger = args.fetch(:logger) { Logger.new(STDOUT) }
     @sleep_secs = args.fetch(:sleep_secs, 1)
     @handler_options = args.fetch(:handler_options, {})
@@ -32,6 +32,7 @@ class NsqSubscriber
   protected
 
     def read_messages
+      return if subscriber.queue.size.nil?
       subscriber.queue.size.times do
         begin
           message = subscriber.queue.pop
@@ -54,7 +55,8 @@ class NsqSubscriber
         Krakow::Consumer.new(
           nsqlookupd: @lookupd,
           topic: @topic,
-          channel: @channel
+          channel: @channel,
+          max_in_flight: @max_in_flight
         )
       end
     end
