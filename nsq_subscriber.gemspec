@@ -26,7 +26,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "krakow", "~> 0.4.2"
+  # We're (xmjw) working on a PR to Krakow main that will fix the issue, until then, 
+  # this is a patched version.
+  spec.add_dependency "krakow", :git => 'git@github.com:xmjw/krakow.git'
 
   spec.add_development_dependency "bundler", "~> 1.9"
   spec.add_development_dependency "rake", "~> 10.0"
