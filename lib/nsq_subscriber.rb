@@ -12,7 +12,7 @@ class NsqSubscriber
     @channel = args.fetch(:channel)
     @max_in_flight = args.fetch(:max_in_flight, 25)
     @logger = args.fetch(:logger) { Logger.new(STDOUT) }
-    @sleep_secs = args.fetch(:sleep_secs, 1)
+    @sleep_secs = args.fetch(:sleep_secs, 15)
     @handler_options = args.fetch(:handler_options, {})
 
     @handlers = Hash.new(NoHandlerWarningHandler)
