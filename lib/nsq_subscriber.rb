@@ -19,6 +19,8 @@ class NsqSubscriber
     @handler_options = args.fetch(:handler_options, {})
 
     @handlers = Hash.new(NoHandlerWarningHandler)
+
+    Krakow::Utils::Logging.level = :warn
   end
 
   def []=(message_type, handler)
@@ -53,7 +55,7 @@ class NsqSubscriber
     end
 
     def queue_empty?
-      if subscriber.queue.size.nil?
+      if subscriber.queue.size.to_i == 0
         increase_empty_queue_count!
         new_subscriber! if empty_queue_count > MAX_EMPTY_QUEUE_ATTEMPTS
         true
@@ -67,8 +69,8 @@ class NsqSubscriber
     end
 
     def new_subscriber!
-      Krakow::Utils::Logging.level = :warn
       @subscriber.terminate if @subscriber
+      @logger.debug("Old NSQ/Krakow consumer terminated - New one instantiated")
       reset_empty_queue_count!
       @subscriber = Krakow::Consumer.new(
         nsqlookupd: @lookupd,
@@ -87,7 +89,7 @@ class NsqSubscriber
     end
 
     def increase_empty_queue_count!
-      @empty_queue_count = @empty_queue_count.to_i++
+      @empty_queue_count = @empty_queue_count.to_i + 1
     end
 
     def process_message(message)
