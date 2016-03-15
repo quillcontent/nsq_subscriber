@@ -7,7 +7,7 @@ require_relative "nsq_subscriber/no_handler_warning_handler"
 class NsqSubscriber
 
   DEFAULT_SLEEP_SECS = 30
-  MAX_EMPTY_QUEUE_ATTEMPTS = 10
+  MAX_EMPTY_QUEUE_ATTEMPTS = 20
 
   def initialize(args)
     @lookupd = args.fetch(:lookupd)
