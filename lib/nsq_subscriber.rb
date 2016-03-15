@@ -6,13 +6,16 @@ require_relative "nsq_subscriber/no_handler_warning_handler"
 # Listen for the NSQ queue, passing the messages to the right handler
 class NsqSubscriber
 
+  DEFAULT_SLEEP_SECS = 30
+  MAX_EMPTY_QUEUE_ATTEMPTS = 10
+
   def initialize(args)
     @lookupd = args.fetch(:lookupd)
     @topic   = args.fetch(:topic)
     @channel = args.fetch(:channel)
     @max_in_flight = args.fetch(:max_in_flight, 25)
     @logger = args.fetch(:logger) { Logger.new(STDOUT) }
-    @sleep_secs = args.fetch(:sleep_secs, 15)
+    @sleep_secs = args.fetch(:sleep_secs, DEFAULT_SLEEP_SECS)
     @handler_options = args.fetch(:handler_options, {})
 
     @handlers = Hash.new(NoHandlerWarningHandler)
@@ -32,7 +35,7 @@ class NsqSubscriber
   protected
 
     def read_messages
-      return if subscriber.queue.size.nil?
+      return if queue_empty?
       subscriber.queue.size.times do
         begin
           message = subscriber.queue.pop
@@ -49,16 +52,42 @@ class NsqSubscriber
       end
     end
 
-    def subscriber
-      @subscriber ||= begin
-        Krakow::Utils::Logging.level = :warn
-        Krakow::Consumer.new(
-          nsqlookupd: @lookupd,
-          topic: @topic,
-          channel: @channel,
-          max_in_flight: @max_in_flight
-        )
+    def queue_empty?
+      if subscriber.queue.size.nil?
+        increase_empty_queue_count!
+        new_subscriber! if empty_queue_count > MAX_EMPTY_QUEUE_ATTEMPTS
+        true
+      else
+        false
       end
+    end
+
+    def subscriber
+      @subscriber ||= new_subscriber!
+    end
+
+    def new_subscriber!
+      Krakow::Utils::Logging.level = :warn
+      @subscriber.terminate if @subscriber
+      reset_empty_queue_count!
+      @subscriber = Krakow::Consumer.new(
+        nsqlookupd: @lookupd,
+        topic: @topic,
+        channel: @channel,
+        max_in_flight: @max_in_flight
+      )
+    end
+
+    def empty_queue_count
+      @empty_queue_count.to_i
+    end
+
+    def reset_empty_queue_count!
+      @empty_queue_count = 0
+    end
+
+    def increase_empty_queue_count!
+      @empty_queue_count = @empty_queue_count.to_i++
     end
 
     def process_message(message)
