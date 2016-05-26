@@ -2,6 +2,15 @@
 
 Please include notes on all updates and changes here.
 
+# 0.0.5
+
+* Messages are re-queued/re-tried on exception
+* Adds `max_attempts` config which determines the number of times a message
+  will be re-queue on fail. Default is 15
+* Adds `backoff_interval` config is used to calculate for how long the consumer
+  will backoff when failures occur (failures * backoff_interval seconds).
+  Default is 120 seconds
+
 # 0.0.4
 
 **Custom Krakow build** while we await a fix/alternative for [this PR](https://github.com/chrisroberts/krakow/pull/36).
