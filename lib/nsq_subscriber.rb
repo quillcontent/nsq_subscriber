@@ -44,7 +44,7 @@ class NsqSubscriber
           @logger.info("NSQ message received = #{message.message}")
 
           if message.attempts > @max_attempts
-            @logger.info("msg #{message.message_id} attempted #{message.attempts} times, giving up")
+            @logger.warn("msg #{message.message_id} attempted #{message.attempts} times, giving up")
           else
             process_message(message)
           end
