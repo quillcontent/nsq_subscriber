@@ -65,6 +65,16 @@ is in the following format it will trigger `ExampleHandler#call`.
 The `:handler_options` key will be passed to the handler when a relevant message
 will be received.
 
+## Running the tests
+
+To run the tests:
+
+```bash
+$ bundle exec rspec
+```
+
+NOTE: nsqd and nsqlookupd will need to be running locally. Follow the instructions on NSQ documentation: http://nsq.io/overview/quick_start.html
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/console` for an interactive prompt that will allow you to experiment.
